@@ -3,6 +3,7 @@ on: workflow_dispatch
 
 jobs:
   Windows-RDP:
+    permissions: write-all
     runs-on: windows-latest
     steps:
       - name: Download and Extract EasyTier
