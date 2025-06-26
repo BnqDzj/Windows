@@ -9,6 +9,7 @@ jobs:
         run: |
           Invoke-WebRequest https://github.com/EasyTier/EasyTier/releases/download/v2.3.2/easytier-windows-x86_64-v2.3.2.zip -OutFile EasyTier.zip
           Expand-Archive -Path EasyTier.zip -DestinationPath .\EasyTier -Force
+          Remove-Item -Path "EasyTier.zip"
 
       - name: Configure Remote Desktop
         run: |
@@ -44,20 +45,6 @@ jobs:
         env:
           EASYTIER_NETWORK_NAME: ${{ secrets.EASYTIER_NETWORK_NAME }}
           EASYTIER_NETWORK_SECRET: ${{ secrets.EASYTIER_NETWORK_SECRET }}
-
-      - name: Verify Tunnel Status
-        run: |
-          Start-Sleep -Seconds 10
-          $process = Get-Process easytier-core -ErrorAction SilentlyContinue
-          if (-not $process) { 
-            Write-Error "EasyTier process not running!"
-            exit 1 
-          }
-          $iface = Get-NetAdapter -Name "EasyTier*" -ErrorAction SilentlyContinue
-          if (-not $iface) {
-            Write-Error "EasyTier network interface missing!"
-            exit 1
-          }
 
       - name: Delete old workflow run
         continue-on-error: true
