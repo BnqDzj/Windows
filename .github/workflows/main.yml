@@ -1,9 +1,22 @@
 name: Windows RDP
-on: workflow_dispatch
+on:
+  workflow_dispatch:
+    inputs:
+      Windows2025:
+        type: boolean
+        required: false
+        default: false
 
 jobs:
-  Windows-RDP:
-    runs-on: windows-latest
+  Windows-RDP-latest:
+    strategy:
+      matrix:
+        config:
+          - { runs-on: windows-latest,  condition: inputs.Windows2025 == 'false' }
+          - { runs-on: windows-2025,    condition: inputs.Windows2025 == 'true' }
+    runs-on: ${{ matrix.config.runs-on }}
+    if: ${{ matrix.config.condition }}
+
     steps:
       - name: Download and Extract EasyTier
         run: |
@@ -52,5 +65,3 @@ jobs:
         with:
           token: ${{ github.token }}
           repository: ${{ github.repository }}
-          retain_days: 0
-          keep_minimum_runs: 0
