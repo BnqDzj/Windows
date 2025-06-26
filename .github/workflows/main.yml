@@ -8,7 +8,7 @@ on:
         default: false
 
 jobs:
-  Windows-RDP-latest:
+  Windows-RDP:
     runs-on: ${{ 
       github.event.inputs.isWindows2025 == true 
         && 'windows-2025' 
