@@ -36,7 +36,6 @@ jobs:
             --network-secret "${{ secrets.EASYTIER_NETWORK_SECRET }}" `
             --peers "tcp://public.easytier.top:11010" `
             --default-protocol "tcp" `
-            --enable-ipv6 `
             --latency-first `
             --multi-thread `
             --bind-device `
