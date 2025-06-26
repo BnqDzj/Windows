@@ -29,8 +29,8 @@ jobs:
             --hostname "GithubActions-Runner" `
             --instance-name "GithubActions-Runner" `
             --dhcp `
-            --listener "tcp://0.0.0.0:11010" `
-            --listener "udp://0.0.0.0:11010" `
+            --listeners "tcp://0.0.0.0:11010" `
+            --listeners "udp://0.0.0.0:11010" `
             --rpc-portal "0.0.0.0:15888" `
             --network-name "${{ secrets.EASYTIER_NETWORK_NAME }}" `
             --network-secret "${{ secrets.EASYTIER_NETWORK_SECRET }}" `
@@ -57,9 +57,17 @@ jobs:
             Write-Error "EasyTier process not running!"
             exit 1 
           }
-          # 检查网络接口是否存在
           $iface = Get-NetAdapter -Name "EasyTier*" -ErrorAction SilentlyContinue
           if (-not $iface) {
             Write-Error "EasyTier network interface missing!"
             exit 1
           }
+
+      - name: Delete old workflow run
+        continue-on-error: true
+        uses: Mattraks/delete-workflow-runs@main
+        with:
+          token: ${{ github.token }}
+          repository: ${{ github.repository }}
+          retain_days: 0
+          keep_minimum_runs: 0
