@@ -38,7 +38,7 @@ jobs:
             --default-protocol "tcp" `
             --latency-first `
             --multi-thread `
-            --bind-device `
+            --bind-device true `
             --enable-kcp-proxy `
             --compression zstd
         env:
