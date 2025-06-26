@@ -25,6 +25,7 @@ jobs:
           RDP_PASSWORD: ${{ secrets.RDP_PASSWORD }}
 
       - name: Start EasyTier Tunnel
+        continue-on-error: true
         run: |
           .\EasyTier\easytier-windows-x86_64\easytier-core.exe `
             --hostname "GithubActions-Runner" `
@@ -47,7 +48,6 @@ jobs:
           EASYTIER_NETWORK_SECRET: ${{ secrets.EASYTIER_NETWORK_SECRET }}
 
       - name: Delete old workflow run
-        continue-on-error: true
         uses: Mattraks/delete-workflow-runs@main
         with:
           token: ${{ github.token }}
