@@ -1,8 +1,8 @@
-name: Windows RDP via EasyTier
+name: Windows RDP
 on: workflow_dispatch
 
 jobs:
-  setup-rdp-tunnel:
+  Windows-RDP:
     runs-on: windows-latest
     steps:
       - name: Download and Extract EasyTier
@@ -19,7 +19,7 @@ jobs:
       - name: Set Administrator Password
         run: |
           $securePassword = ConvertTo-SecureString "${{ secrets.RDP_PASSWORD }}" -AsPlainText -Force
-          Set-LocalUser -Name "Administrator" -Password $securePassword
+          Set-LocalUser -Name "runneradmin" -Password $securePassword
         env:
           RDP_PASSWORD: ${{ secrets.RDP_PASSWORD }}
 
