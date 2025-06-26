@@ -1,19 +1,10 @@
 name: Windows RDP
 on:
   workflow_dispatch:
-    inputs:
-      Windows2025:
-        type: boolean
-        required: false
-        default: false
 
 jobs:
   Windows-RDP:
-    runs-on: ${{ 
-      github.event.inputs.isWindows2025 == true 
-        && 'windows-2025' 
-        || 'windows-latest' 
-        }}
+    runs-on: windows-latest
     steps:
       - name: Download and Extract EasyTier
         run: |
