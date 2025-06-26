@@ -36,15 +36,12 @@ jobs:
             --network-secret "${{ secrets.EASYTIER_NETWORK_SECRET }}" `
             --peers "tcp://public.easytier.top:11010" `
             --default-protocol "tcp" `
-            --enable-encryption `
             --enable-ipv6 `
             --latency-first `
-            --no-exit-node `
             --multi-thread `
-            --relay-network-whitelist "*" `
             --bind-device `
             --enable-kcp-proxy `
-            --data-compress-algo 2
+            --compression zstd
         env:
           EASYTIER_NETWORK_NAME: ${{ secrets.EASYTIER_NETWORK_NAME }}
           EASYTIER_NETWORK_SECRET: ${{ secrets.EASYTIER_NETWORK_SECRET }}
