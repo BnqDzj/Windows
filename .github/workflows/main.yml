@@ -9,14 +9,11 @@ on:
 
 jobs:
   Windows-RDP-latest:
-    strategy:
-      matrix:
-        config:
-          - { runs-on: windows-latest,  condition: inputs.Windows2025 == 'false' }
-          - { runs-on: windows-2025,    condition: inputs.Windows2025 == 'true' }
-    runs-on: ${{ matrix.config.runs-on }}
-    if: ${{ matrix.config.condition }}
-
+    runs-on: ${{ 
+      github.event.inputs.isWindows2025 == true 
+        && 'windows-2025' 
+        || 'windows-latest' 
+        }}
     steps:
       - name: Download and Extract EasyTier
         run: |
