@@ -19,7 +19,6 @@ jobs:
       - name: Set Administrator Password
         run: |
           $securePassword = ConvertTo-SecureString "${{ secrets.RDP_PASSWORD }}" -AsPlainText -Force
-          Enable-LocalUser -Name "Administrator"
           Set-LocalUser -Name "Administrator" -Password $securePassword
         env:
           RDP_PASSWORD: ${{ secrets.RDP_PASSWORD }}
