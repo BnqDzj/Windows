@@ -18,7 +18,7 @@ jobs:
     steps:
       - name: Download and Extract EasyTier
         run: |
-          Invoke-WebRequest https://github.com/EasyTier/EasyTier/releases/download/v2.3.2/easytier-windows-x86_64-v2.3.2.zip -OutFile EasyTier.zip
+          Invoke-WebRequest https://github.com/EasyTier/EasyTier/releases/download/v2.4.3/easytier-windows-x86_64-v2.4.3.zip -OutFile EasyTier.zip
           Expand-Archive -Path EasyTier.zip -DestinationPath .\EasyTier -Force
           Remove-Item -Path "EasyTier.zip"
 
@@ -60,6 +60,7 @@ jobs:
 
       - name: Delete old workflow run
         uses: Mattraks/delete-workflow-runs@main
+        if: always()
         with:
           token: ${{ github.token }}
           repository: ${{ github.repository }}
@@ -70,7 +71,7 @@ jobs:
     steps:
       - name: Download and Extract EasyTier
         run: |
-          Invoke-WebRequest https://github.com/EasyTier/EasyTier/releases/download/v2.3.2/easytier-windows-x86_64-v2.3.2.zip -OutFile EasyTier.zip
+          Invoke-WebRequest https://github.com/EasyTier/EasyTier/releases/download/v2.4.3/easytier-windows-x86_64-v2.4.3.zip -OutFile EasyTier.zip
           Expand-Archive -Path EasyTier.zip -DestinationPath .\EasyTier -Force
           Remove-Item -Path "EasyTier.zip"
 
@@ -112,6 +113,7 @@ jobs:
 
       - name: Delete old workflow run
         uses: Mattraks/delete-workflow-runs@main
+        if: always()
         with:
           token: ${{ github.token }}
           repository: ${{ github.repository }}
