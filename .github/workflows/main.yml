@@ -12,13 +12,21 @@ on:
         default: false
 
 jobs:
+  Get-EasyTier-Version:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Get EasyTier Latest Version
+        run: |
+          version=`wget --spider -S https://github.com/EasyTier/EasyTier/releases/latest 2>&1 | grep -m1 '^  Location:' | sed 's,.*/tag/v,,'`
+          echo "version=$version" >> $GITHUB_ENV
+ 
   Windows-latest:
     runs-on: windows-latest
     if: ${{ github.event.inputs.Windows-latest == 'true' }}
     steps:
       - name: Download and Extract EasyTier
         run: |
-          Invoke-WebRequest https://github.com/EasyTier/EasyTier/releases/download/v2.4.3/easytier-windows-x86_64-v2.4.3.zip -OutFile EasyTier.zip
+          Invoke-WebRequest https://github.com/EasyTier/EasyTier/releases/download/v${{ env.version }}/easytier-windows-x86_64-v${{ env.version }}.zip -OutFile EasyTier.zip
           Expand-Archive -Path EasyTier.zip -DestinationPath .\EasyTier -Force
           Remove-Item -Path "EasyTier.zip"
 
@@ -47,7 +55,7 @@ jobs:
             --rpc-portal "0.0.0.0:15888" `
             --network-name "${{ secrets.EASYTIER_NETWORK_NAME }}" `
             --network-secret "${{ secrets.EASYTIER_NETWORK_SECRET }}" `
-            --peers "tcp://public.easytier.top:11010" `
+            --peers "tcp://public.easytier.top:11010,tcp://156.229.161.115:11010" `
             --default-protocol "tcp" `
             --latency-first `
             --multi-thread `
@@ -71,7 +79,7 @@ jobs:
     steps:
       - name: Download and Extract EasyTier
         run: |
-          Invoke-WebRequest https://github.com/EasyTier/EasyTier/releases/download/v2.4.3/easytier-windows-x86_64-v2.4.3.zip -OutFile EasyTier.zip
+          Invoke-WebRequest https://github.com/EasyTier/EasyTier/releases/download/v${{ env.version }}/easytier-windows-x86_64-v${{ env.version }}.zip -OutFile EasyTier.zip
           Expand-Archive -Path EasyTier.zip -DestinationPath .\EasyTier -Force
           Remove-Item -Path "EasyTier.zip"
 
@@ -100,7 +108,7 @@ jobs:
             --rpc-portal "0.0.0.0:15888" `
             --network-name "${{ secrets.EASYTIER_NETWORK_NAME }}" `
             --network-secret "${{ secrets.EASYTIER_NETWORK_SECRET }}" `
-            --peers "tcp://public.easytier.top:11010" `
+            --peers "tcp://public.easytier.top:11010,tcp://156.229.161.115:11010" `
             --default-protocol "tcp" `
             --latency-first `
             --multi-thread `
