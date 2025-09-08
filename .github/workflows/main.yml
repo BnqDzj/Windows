@@ -23,6 +23,7 @@ jobs:
   Windows-latest:
     runs-on: windows-latest
     if: ${{ github.event.inputs.Windows-latest == 'true' }}
+    needs: Get-EasyTier-Version
     steps:
       - name: Download and Extract EasyTier
         run: |
@@ -76,6 +77,7 @@ jobs:
   Windows-2025:
     runs-on: windows-2025
     if: ${{ github.event.inputs.Windows-2025 == 'true' }}
+    needs: Get-EasyTier-Version
     steps:
       - name: Download and Extract EasyTier
         run: |
