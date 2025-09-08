@@ -14,17 +14,23 @@ on:
 jobs:
   Get-EasyTier-Version:
     runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.Get-EasyTier-Version.outputs.version }}
     steps:
       - name: Get EasyTier Latest Version
+        id: Get-EasyTier-Version
         run: |
           version=`wget --spider -S https://github.com/EasyTier/EasyTier/releases/latest 2>&1 | grep -m1 '^  Location:' | sed 's,.*/tag/v,,'`
-          echo "version=$version" >> $GITHUB_ENV
+          echo "version=$version" >> $GITHUB_OUTPUT
  
   Windows-latest:
     runs-on: windows-latest
     if: ${{ github.event.inputs.Windows-latest == 'true' }}
     needs: Get-EasyTier-Version
     steps:
+      - env:
+          version: ${{needs.Get-EasyTier-Version.outputs.version}}
+
       - name: Download and Extract EasyTier
         run: |
           Invoke-WebRequest https://github.com/EasyTier/EasyTier/releases/download/v${{ env.version }}/easytier-windows-x86_64-v${{ env.version }}.zip -OutFile EasyTier.zip
@@ -79,6 +85,9 @@ jobs:
     if: ${{ github.event.inputs.Windows-2025 == 'true' }}
     needs: Get-EasyTier-Version
     steps:
+      - env:
+          version: ${{needs.Get-EasyTier-Version.outputs.version}}
+
       - name: Download and Extract EasyTier
         run: |
           Invoke-WebRequest https://github.com/EasyTier/EasyTier/releases/download/v${{ env.version }}/easytier-windows-x86_64-v${{ env.version }}.zip -OutFile EasyTier.zip
