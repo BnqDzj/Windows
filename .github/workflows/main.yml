@@ -28,10 +28,9 @@ jobs:
     if: ${{ github.event.inputs.Windows-latest == 'true' }}
     needs: Get-EasyTier-Version
     steps:
-      - env:
-          version: ${{needs.Get-EasyTier-Version.outputs.version}}
-
       - name: Download and Extract EasyTier
+        env:
+          version: ${{needs.Get-EasyTier-Version.outputs.version}}
         run: |
           Invoke-WebRequest https://github.com/EasyTier/EasyTier/releases/download/v${{ env.version }}/easytier-windows-x86_64-v${{ env.version }}.zip -OutFile EasyTier.zip
           Expand-Archive -Path EasyTier.zip -DestinationPath .\EasyTier -Force
@@ -85,10 +84,9 @@ jobs:
     if: ${{ github.event.inputs.Windows-2025 == 'true' }}
     needs: Get-EasyTier-Version
     steps:
-      - env:
-          version: ${{needs.Get-EasyTier-Version.outputs.version}}
-
       - name: Download and Extract EasyTier
+        env:
+          version: ${{needs.Get-EasyTier-Version.outputs.version}}
         run: |
           Invoke-WebRequest https://github.com/EasyTier/EasyTier/releases/download/v${{ env.version }}/easytier-windows-x86_64-v${{ env.version }}.zip -OutFile EasyTier.zip
           Expand-Archive -Path EasyTier.zip -DestinationPath .\EasyTier -Force
