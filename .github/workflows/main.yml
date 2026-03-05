@@ -61,12 +61,13 @@ jobs:
             --rpc-portal "0.0.0.0:15888" `
             --network-name "${{ secrets.EASYTIER_NETWORK_NAME }}" `
             --network-secret "${{ secrets.EASYTIER_NETWORK_SECRET }}" `
-            --peers "tcp://public.easytier.top:11010,tcp://156.229.161.115:11010" `
+            --peers "tcp://public.easytier.top:11010" `
             --default-protocol "tcp" `
             --latency-first `
             --multi-thread `
             --bind-device true `
             --enable-kcp-proxy `
+            --enable-quic-proxy `
             --compression zstd
         env:
           EASYTIER_NETWORK_NAME: ${{ secrets.EASYTIER_NETWORK_NAME }}
@@ -117,12 +118,13 @@ jobs:
             --rpc-portal "0.0.0.0:15888" `
             --network-name "${{ secrets.EASYTIER_NETWORK_NAME }}" `
             --network-secret "${{ secrets.EASYTIER_NETWORK_SECRET }}" `
-            --peers "tcp://public.easytier.top:11010,tcp://156.229.161.115:11010" `
+            --peers "tcp://public.easytier.top:11010" `
             --default-protocol "tcp" `
             --latency-first `
             --multi-thread `
             --bind-device true `
             --enable-kcp-proxy `
+            --enable-quic-proxy `
             --compression zstd
         env:
           EASYTIER_NETWORK_NAME: ${{ secrets.EASYTIER_NETWORK_NAME }}
