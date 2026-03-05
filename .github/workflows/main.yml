@@ -68,7 +68,7 @@ jobs:
             --bind-device true `
             --enable-kcp-proxy `
             --enable-quic-proxy `
-            --encryption-algorithm `
+            --encryption-algorithm aes-gcm `
             --compression zstd
         env:
           EASYTIER_NETWORK_NAME: ${{ secrets.EASYTIER_NETWORK_NAME }}
@@ -126,7 +126,7 @@ jobs:
             --bind-device true `
             --enable-kcp-proxy `
             --enable-quic-proxy `
-            --encryption-algorithm `
+            --encryption-algorithm aes-gcm `
             --compression zstd
         env:
           EASYTIER_NETWORK_NAME: ${{ secrets.EASYTIER_NETWORK_NAME }}
