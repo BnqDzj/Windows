@@ -103,8 +103,7 @@ jobs:
 
           .\EasyTier\easytier-windows-x86_64\easytier-core.exe `
             -c "$configPath" `
-            --listeners "tcp://0.0.0.0:11010" `
-            --listeners "udp://0.0.0.0:11010" `
+            --console-log-level warn`
             --network-name "${{ secrets.EASYTIER_NETWORK_NAME }}" `
             --network-secret "${{ secrets.EASYTIER_NETWORK_SECRET }}"
         env:

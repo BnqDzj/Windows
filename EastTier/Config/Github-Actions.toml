@@ -5,13 +5,15 @@ listeners = []
 mapped_listeners = []
 exit_nodes = []
 rpc_portal = "0.0.0.0:15888"
-console_log_level = "warn"
 tcp_whitelist = []
 udp_whitelist = []
 port_forward = []
 
 [[peer]]
 uri = "tcp://et1.fuis.top:11010"
+
+[file_logger]
+level = "warn"
 
 [flags]
 default_protocol = "tcp"
