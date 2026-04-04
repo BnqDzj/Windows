@@ -1,0 +1,37 @@
+hostname = "Github-Actions"
+instance_name = "Github-Actions"
+dhcp = true
+listeners = []
+mapped_listeners = []
+exit_nodes = []
+rpc_portal = "0.0.0.0:15888"
+tcp_whitelist = []
+udp_whitelist = []
+port_forward = []
+
+[[peer]]
+uri = "tcp://public.easytier.top:11010"
+
+[flags]
+default_protocol = "tcp"
+dev_name = ""
+data_compress_algo = 2
+enable_encryption = true
+encryption_algorithm = "aes-gcm"
+enable_ipv6 = true
+latency_first = true
+enable_exit_node = false
+no_tun = false
+use_smoltcp = true
+disable_p2p = false
+disable_udp_hole_punching = false
+multi_thread = true
+relay_all_peer_rpc = false
+relay_network_whitelist = "*"
+bind_device = true
+disable_kcp_input = false
+enable_kcp_proxy = true
+enable_quic_proxy = true
+accept_dns = false
+private_mode = false
+proxy_forward_by_system = false
