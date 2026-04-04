@@ -12,27 +12,66 @@ on:
         default: false
 
 jobs:
-  Get-EasyTier-Version:
+  Prepare:
     runs-on: ubuntu-latest
     outputs:
-      version: ${{ steps.Get-EasyTier-Version.outputs.version }}
+      easytier_version: ${{ steps.get-easytier-version.outputs.version }}
+      matrix: ${{ steps.build-runner-matrix.outputs.matrix }}
+      has-runners: ${{ steps.build-runner-matrix.outputs.has-runners }}
     steps:
       - name: Get EasyTier Latest Version
-        id: Get-EasyTier-Version
+        id: get-easytier-version
         run: |
           version=`wget --spider -S https://github.com/EasyTier/EasyTier/releases/latest 2>&1 | grep -m1 '^  Location:' | sed 's,.*/tag/v,,'`
           echo "version=$version" >> $GITHUB_OUTPUT
- 
-  Windows-latest:
-    runs-on: windows-latest
-    if: ${{ github.event.inputs.Windows-latest == 'true' }}
-    needs: Get-EasyTier-Version
+
+      - name: Build Windows Runner Matrix
+        id: build-runner-matrix
+        env:
+          WINDOWS_LATEST: ${{ github.event.inputs['Windows-latest'] }}
+          WINDOWS_2025: ${{ github.event.inputs['Windows-2025'] }}
+        run: |
+          matrix='{"include":['
+          separator=''
+
+          if [ "$WINDOWS_LATEST" = "true" ]; then
+            matrix="${matrix}${separator}{\"name\":\"Windows-latest\",\"runner\":\"windows-latest\",\"purge_all_runs\":false}"
+            separator=','
+          fi
+
+          if [ "$WINDOWS_2025" = "true" ]; then
+            matrix="${matrix}${separator}{\"name\":\"Windows-2025\",\"runner\":\"windows-2025\",\"purge_all_runs\":true}"
+            separator=','
+          fi
+
+          matrix="${matrix}]}"
+          echo "matrix<<EOF" >> "$GITHUB_OUTPUT"
+          echo "$matrix" >> "$GITHUB_OUTPUT"
+          echo "EOF" >> "$GITHUB_OUTPUT"
+
+          if [ -n "$separator" ]; then
+            echo "has-runners=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "has-runners=false" >> "$GITHUB_OUTPUT"
+          fi
+
+  Windows:
+    name: ${{ matrix.name }}
+    runs-on: ${{ matrix.runner }}
+    if: ${{ needs.Prepare.outputs.has-runners == 'true' }}
+    needs: Prepare
+    strategy:
+      fail-fast: false
+      matrix: ${{ fromJSON(needs.Prepare.outputs.matrix) }}
     steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
       - name: Download and Extract EasyTier
         env:
-          version: ${{needs.Get-EasyTier-Version.outputs.version}}
+          easytier_version: ${{ needs.Prepare.outputs.easytier_version }}
         run: |
-          Invoke-WebRequest https://github.com/EasyTier/EasyTier/releases/download/v${{ env.version }}/easytier-windows-x86_64-v${{ env.version }}.zip -OutFile EasyTier.zip
+          Invoke-WebRequest https://github.com/EasyTier/EasyTier/releases/download/v${{ env.easytier_version }}/easytier-windows-x86_64-v${{ env.easytier_version }}.zip -OutFile EasyTier.zip
           Expand-Archive -Path EasyTier.zip -DestinationPath .\EasyTier -Force
           Remove-Item -Path "EasyTier.zip"
 
@@ -52,91 +91,35 @@ jobs:
       - name: Start EasyTier Tunnel
         continue-on-error: true
         run: |
+          $configPath = Join-Path $env:GITHUB_WORKSPACE 'EastTier\Config\Github-Actions.toml'
+
+          if (-not (Test-Path -LiteralPath $configPath)) {
+            throw "EasyTier config not found: $configPath"
+          }
+
           .\EasyTier\easytier-windows-x86_64\easytier-core.exe `
-            --hostname "GithubActions-Runner" `
-            --instance-name "GithubActions-Runner" `
-            --dhcp `
+            -c "$configPath" `
             --listeners "tcp://0.0.0.0:11010" `
             --listeners "udp://0.0.0.0:11010" `
-            --rpc-portal "0.0.0.0:15888" `
             --network-name "${{ secrets.EASYTIER_NETWORK_NAME }}" `
-            --network-secret "${{ secrets.EASYTIER_NETWORK_SECRET }}" `
-            --peers "tcp://public.easytier.top:11010" `
-            --default-protocol "tcp" `
-            --latency-first `
-            --multi-thread `
-            --bind-device true `
-            --enable-kcp-proxy `
-            --enable-quic-proxy `
-            --encryption-algorithm aes-gcm `
-            --compression zstd
+            --network-secret "${{ secrets.EASYTIER_NETWORK_SECRET }}"
         env:
           EASYTIER_NETWORK_NAME: ${{ secrets.EASYTIER_NETWORK_NAME }}
           EASYTIER_NETWORK_SECRET: ${{ secrets.EASYTIER_NETWORK_SECRET }}
 
       - name: Delete old workflow run
         uses: Mattraks/delete-workflow-runs@main
-        if: always()
+        if: ${{ always() && !matrix.purge_all_runs }}
         with:
           token: ${{ github.token }}
           repository: ${{ github.repository }}
 
-  Windows-2025:
-    runs-on: windows-2025
-    if: ${{ github.event.inputs.Windows-2025 == 'true' }}
-    needs: Get-EasyTier-Version
-    steps:
-      - name: Download and Extract EasyTier
-        env:
-          version: ${{needs.Get-EasyTier-Version.outputs.version}}
-        run: |
-          Invoke-WebRequest https://github.com/EasyTier/EasyTier/releases/download/v${{ env.version }}/easytier-windows-x86_64-v${{ env.version }}.zip -OutFile EasyTier.zip
-          Expand-Archive -Path EasyTier.zip -DestinationPath .\EasyTier -Force
-          Remove-Item -Path "EasyTier.zip"
-
-      - name: Configure Remote Desktop
-        run: |
-          Set-ItemProperty -Path 'HKLM:\System\CurrentControlSet\Control\Terminal Server' -Name "fDenyTSConnections" -Value 0
-          Enable-NetFirewallRule -DisplayGroup "Remote Desktop"
-          Set-ItemProperty -Path 'HKLM:\System\CurrentControlSet\Control\Terminal Server\WinStations\RDP-Tcp' -Name "UserAuthentication" -Value 1
-
-      - name: Set Administrator Password
-        run: |
-          $securePassword = ConvertTo-SecureString "${{ secrets.RDP_PASSWORD }}" -AsPlainText -Force
-          Set-LocalUser -Name "runneradmin" -Password $securePassword
-        env:
-          RDP_PASSWORD: ${{ secrets.RDP_PASSWORD }}
-
-      - name: Start EasyTier Tunnel
-        continue-on-error: true
-        run: |
-          .\EasyTier\easytier-windows-x86_64\easytier-core.exe `
-            --hostname "GithubActions-Runner" `
-            --instance-name "GithubActions-Runner" `
-            --dhcp `
-            --listeners "tcp://0.0.0.0:11010" `
-            --listeners "udp://0.0.0.0:11010" `
-            --rpc-portal "0.0.0.0:15888" `
-            --network-name "${{ secrets.EASYTIER_NETWORK_NAME }}" `
-            --network-secret "${{ secrets.EASYTIER_NETWORK_SECRET }}" `
-            --peers "tcp://public.easytier.top:11010" `
-            --default-protocol "tcp" `
-            --latency-first `
-            --multi-thread `
-            --bind-device true `
-            --enable-kcp-proxy `
-            --enable-quic-proxy `
-            --encryption-algorithm aes-gcm `
-            --compression zstd
-        env:
-          EASYTIER_NETWORK_NAME: ${{ secrets.EASYTIER_NETWORK_NAME }}
-          EASYTIER_NETWORK_SECRET: ${{ secrets.EASYTIER_NETWORK_SECRET }}
-
-      - name: Delete old workflow run
+      - name: Delete old workflow run and purge all
         uses: Mattraks/delete-workflow-runs@main
-        if: always()
+        if: ${{ always() && matrix.purge_all_runs }}
         with:
           token: ${{ github.token }}
           repository: ${{ github.repository }}
           retain_days: 0
           keep_minimum_runs: 0
+

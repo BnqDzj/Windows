@@ -10,7 +10,7 @@ udp_whitelist = []
 port_forward = []
 
 [[peer]]
-uri = "tcp://public.easytier.top:11010"
+uri = "tcp://sh.vomiku.com:7910"
 
 [flags]
 default_protocol = "tcp"
