@@ -18,14 +18,11 @@ jobs:
       - name: Get EasyTier Latest Version
         id: get-easytier-version
         shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
         run: |
-          version=$(
-            curl -fsSL \
-              -H "Accept: application/vnd.github+json" \
-              "https://api.github.com/repos/EasyTier/EasyTier/releases?per_page=1" |
-              grep -m1 '"tag_name":' |
-              sed -E 's/.*"tag_name": "v?([^"]+)".*/\1/'
-          )
+          tag_name=$(gh release list -R EasyTier/EasyTier --limit 1 --json tagName --jq '.[0].tagName')
+          version=$(printf '%s' "$tag_name" | sed -E 's/^v//')
 
           if [ -z "$version" ]; then
             echo "Failed to resolve EasyTier release version" >&2
@@ -33,7 +30,6 @@ jobs:
           fi
 
           echo "version=$version" >> "$GITHUB_OUTPUT"
-
       - name: Build Windows Runner Matrix
         id: build-runner-matrix
         shell: bash
@@ -121,3 +117,5 @@ jobs:
         with:
           token: ${{ github.token }}
           repository: ${{ github.repository }}
+
+
