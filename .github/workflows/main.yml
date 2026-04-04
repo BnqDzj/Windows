@@ -2,14 +2,10 @@ name: Windows RDP
 on:
   workflow_dispatch:
     inputs:
-      Windows-latest:
-        description: 'Windows latest'
-        type: boolean
-        default: true
-      Windows-2025:
-        description: 'Windows 2025'
-        type: boolean
-        default: false
+      Windows-Runners:
+        description: 'Comma-separated Windows runner labels'
+        required: true
+        default: 'windows-latest'
 
 jobs:
   Prepare:
@@ -21,37 +17,49 @@ jobs:
     steps:
       - name: Get EasyTier Latest Version
         id: get-easytier-version
+        shell: bash
         run: |
-          version=`wget --spider -S https://github.com/EasyTier/EasyTier/releases/latest 2>&1 | grep -m1 '^  Location:' | sed 's,.*/tag/v,,'`
-          echo "version=$version" >> $GITHUB_OUTPUT
+          version=$(
+            curl -fsSL \
+              -H "Accept: application/vnd.github+json" \
+              "https://api.github.com/repos/EasyTier/EasyTier/releases?per_page=1" |
+              grep -m1 '"tag_name":' |
+              sed -E 's/.*"tag_name": "v?([^"]+)".*/\1/'
+          )
+
+          if [ -z "$version" ]; then
+            echo "Failed to resolve EasyTier release version" >&2
+            exit 1
+          fi
+
+          echo "version=$version" >> "$GITHUB_OUTPUT"
 
       - name: Build Windows Runner Matrix
         id: build-runner-matrix
+        shell: bash
         env:
-          WINDOWS_LATEST: ${{ github.event.inputs['Windows-latest'] }}
-          WINDOWS_2025: ${{ github.event.inputs['Windows-2025'] }}
+          WINDOWS_RUNNERS: ${{ github.event.inputs['Windows-Runners'] }}
         run: |
           matrix='{"include":['
           separator=''
 
-          if [ "$WINDOWS_LATEST" = "true" ]; then
-            matrix="${matrix}${separator}{\"name\":\"Windows-latest\",\"runner\":\"windows-latest\",\"purge_all_runs\":false}"
-            separator=','
-          fi
+          while IFS= read -r runner; do
+            runner=$(printf '%s' "$runner" | sed 's/^[[:space:]]*//; s/[[:space:]]*$//')
+            [ -n "$runner" ] || continue
 
-          if [ "$WINDOWS_2025" = "true" ]; then
-            matrix="${matrix}${separator}{\"name\":\"Windows-2025\",\"runner\":\"windows-2025\",\"purge_all_runs\":true}"
+            escaped_runner=$(printf '%s' "$runner" | sed 's/\\/\\\\/g; s/"/\\"/g')
+            matrix="${matrix}${separator}{\"name\":\"${escaped_runner}\",\"runner\":\"${escaped_runner}\"}"
             separator=','
-          fi
-
-          matrix="${matrix}]}"
-          echo "matrix<<EOF" >> "$GITHUB_OUTPUT"
-          echo "$matrix" >> "$GITHUB_OUTPUT"
-          echo "EOF" >> "$GITHUB_OUTPUT"
+          done <<EOF
+          $(printf '%s' "$WINDOWS_RUNNERS" | tr ',' '\n')
+          EOF
 
           if [ -n "$separator" ]; then
+            matrix="${matrix}]}"
+            echo "matrix=$matrix" >> "$GITHUB_OUTPUT"
             echo "has-runners=true" >> "$GITHUB_OUTPUT"
           else
+            echo 'matrix={"include":[]}' >> "$GITHUB_OUTPUT"
             echo "has-runners=false" >> "$GITHUB_OUTPUT"
           fi
 
@@ -65,7 +73,7 @@ jobs:
       matrix: ${{ fromJSON(needs.Prepare.outputs.matrix) }}
     steps:
       - name: Checkout Repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@main
 
       - name: Download and Extract EasyTier
         env:
@@ -109,17 +117,7 @@ jobs:
 
       - name: Delete old workflow run
         uses: Mattraks/delete-workflow-runs@main
-        if: ${{ always() && !matrix.purge_all_runs }}
+        if: always()
         with:
           token: ${{ github.token }}
           repository: ${{ github.repository }}
-
-      - name: Delete old workflow run and purge all
-        uses: Mattraks/delete-workflow-runs@main
-        if: ${{ always() && matrix.purge_all_runs }}
-        with:
-          token: ${{ github.token }}
-          repository: ${{ github.repository }}
-          retain_days: 0
-          keep_minimum_runs: 0
-
