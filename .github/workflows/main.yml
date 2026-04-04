@@ -111,11 +111,16 @@ jobs:
           EASYTIER_NETWORK_NAME: ${{ secrets.EASYTIER_NETWORK_NAME }}
           EASYTIER_NETWORK_SECRET: ${{ secrets.EASYTIER_NETWORK_SECRET }}
 
-      - name: Delete old workflow run
+  Finalize:
+    name: Finalize Workflow
+    needs: Windows
+    runs-on: ubuntu-latest
+    if: always()
+    steps:
+      - name: Delete old workflow runs
         uses: Mattraks/delete-workflow-runs@main
-        if: always()
         with:
           token: ${{ github.token }}
           repository: ${{ github.repository }}
-
-
+          retain_days: 0
+          keep_minimum_runs: 0

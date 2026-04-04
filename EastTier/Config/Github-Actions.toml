@@ -5,6 +5,7 @@ listeners = []
 mapped_listeners = []
 exit_nodes = []
 rpc_portal = "0.0.0.0:15888"
+console_log_level = "warn"
 tcp_whitelist = []
 udp_whitelist = []
 port_forward = []
