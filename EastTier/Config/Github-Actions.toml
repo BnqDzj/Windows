@@ -12,9 +12,6 @@ port_forward = []
 [[peer]]
 uri = "tcp://et1.fuis.top:11010"
 
-[file_logger]
-level = "error"
-
 [flags]
 default_protocol = "tcp"
 dev_name = ""
