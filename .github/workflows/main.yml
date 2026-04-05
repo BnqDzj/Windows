@@ -107,14 +107,13 @@ jobs:
               return ''
             }
 
-            $line = [regex]::Replace($line, '(?<!\d)(?:\d{1,3}\.){3}\d{1,3}(?!\d)', '[MASKED_IP]')
-            $line = [regex]::Replace($line, '(?i)(?<![0-9a-f:])(?:[0-9a-f]{1,4}:){2,7}[0-9a-f]{1,4}(?![0-9a-f:])', '[MASKED_IP]')
+            $line = [regex]::Replace($line, '(?<!\d)(?:\d{1,3}\.){3}\d{1,3}(?!\d)', '[PRIVACY]')
+            $line = [regex]::Replace($line, '(?i)(?<![0-9a-f:])(?:[0-9a-f]{1,4}:){2,7}[0-9a-f]{1,4}(?![0-9a-f:])', '[PRIVACY]')
             return $line
           }
 
           & .\EasyTier\easytier-windows-x86_64\easytier-core.exe `
             -c "$configPath" `
-            --console-log-level error `
             --network-name "${{ secrets.EASYTIER_NETWORK_NAME }}" `
             --network-secret "${{ secrets.EASYTIER_NETWORK_SECRET }}" 2>&1 |
             ForEach-Object {
