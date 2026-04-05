@@ -13,7 +13,7 @@ port_forward = []
 uri = "tcp://et1.fuis.top:11010"
 
 [file_logger]
-level = "warn"
+level = "error"
 
 [flags]
 default_protocol = "tcp"
