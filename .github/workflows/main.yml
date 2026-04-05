@@ -103,7 +103,7 @@ jobs:
 
           .\EasyTier\easytier-windows-x86_64\easytier-core.exe `
             -c "$configPath" `
-            --console-log-level warn`
+            --console-log-level warn `
             --network-name "${{ secrets.EASYTIER_NETWORK_NAME }}" `
             --network-secret "${{ secrets.EASYTIER_NETWORK_SECRET }}"
         env:
