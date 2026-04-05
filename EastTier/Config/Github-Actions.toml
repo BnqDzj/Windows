@@ -14,8 +14,6 @@ uri = "tcp://et1.fuis.top:11010"
 
 [file_logger]
 level = "error"
-dir = "D:\\a\\Windows\\Windows\\EastTier\\logs"
-file = "Github-Actions"
 
 [flags]
 default_protocol = "tcp"
